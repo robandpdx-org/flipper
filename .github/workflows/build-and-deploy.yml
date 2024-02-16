@@ -16,11 +16,11 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: gradle
-    - name: Install retry
+    - name: Install Retry
       run: scripts/install-retry.sh
     - name: build
       run: |
         yes | sdkmanager "platforms;android-33" || true
         /tmp/retry -m 3 ./gradlew :android:assembleRelease --info
-    - name: Deploy snapshot
+    - name: Deploy Snapshot
       run: "/tmp/retry -m 3 scripts/publish-android-snapshot.sh"

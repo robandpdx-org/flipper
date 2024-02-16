@@ -1,0 +1,30 @@
+name: facebook/flipper/build-and-deploy
+on:
+  push:
+    branches:
+    - main
+env:
+  ANDROID_PUBLISH_KEY: ${{ secrets.ANDROID_PUBLISH_KEY }}
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    env:
+      TERM: dumb
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install gradle
+#     # This item has no matching transformer
+#     - circleci_android_restore_gradle_cache:
+    - name: install retry
+      run: scripts/install-retry.sh
+    - name: build
+      run: |
+        yes | sdkmanager "platforms;android-33" || true
+        /tmp/retry -m 3 ./gradlew :android:assembleRelease --info
+    - name: deploy snapshot
+      run: "/tmp/retry -m 3 scripts/publish-android-snapshot.sh"
+#     # This item has no matching transformer
+#     - circleci_android_save_gradle_cache:
